@@ -1,30 +1,13 @@
-// Roles Table
-exports.up = async function (knex, Promise) {
-  return addExtension()
-    .then(createRolesTable)
-    .then(createUserTable)
-    .then(createLogsTable)
-    .then(createCustomerTable)
-    .then(createSettingsTable)
-    .then(createAddressTable)
-    .then(createMerchantsTable)
-    .then(createQueueTable)
-    .then(createTablesTable)
-    .then(createSeatedTable);
+exports.up = function (knex) {
+  return Promise.all([
+    knex.schema.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'),
 
-  function addExtension() {
-    return knex.schema.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
-  }
-
-  function createRolesTable() {
-    return knex.schema.createTable("roles", function (table) {
+    knex.schema.createTable("authRoles", function (table) {
       table.uuid("id").primary().defaultTo(knex.raw("uuid_generate_v4()"));
       table.string("type").notNullable();
-    });
-  }
+    }),
 
-  function createUserTable() {
-    return knex.schema.createTable("users", function (table) {
+    knex.schema.createTable("users", function (table) {
       table.uuid("id").primary().defaultTo(knex.raw("uuid_generate_v4()"));
       table.string("email").notNullable();
       table.string("password").notNullable();
@@ -36,39 +19,27 @@ exports.up = async function (knex, Promise) {
       table.boolean("locked_out").notNullable().defaultTo(false);
       table.timestamp("created_at");
 
-      table
-        .foreign("role_id")
-        .references("id")
-        .inTable("roles");
-    });
-  }
+      table.foreign("role_id").references("authRoles.id");
+    }),
 
-  function createLogsTable() {
-    return knex.schema.createTable("authLogs", function (table) {
+    knex.schema.createTable("authLogs", function (table) {
       table.uuid("id").primary().defaultTo(knex.raw("uuid_generate_v4()"));
       table.uuid("user_id").unsigned().notNullable();
       table.timestamp("created_at");
       table.string("log").notNullable();
 
-      table
-        .foreign("user_id")
-        .references("id")
-        .inTable("users");
-    });
-  }
+      table.foreign("user_id").references("users.id");
+    }),
 
-  function createCustomerTable() {
-    return knex.schema.createTable("customers", function (table) {
+    knex.schema.createTable("customers", function (table) {
       table.uuid("id").primary().defaultTo(knex.raw("uuid_generate_v4()"));
       table.uuid("user_id").unsigned().notNullable();
       table.timestamp("created_at");
 
       table.foreign("user_id").references("id").inTable("users");
-    });
-  }
+    }),
 
-  function createMerchantsTable() {
-    return knex.schema.createTable("merchants", function (table) {
+    knex.schema.createTable("merchants", function (table) {
       table.uuid("id").primary().defaultTo(knex.raw("uuid_generate_v4()"));
       table.uuid("user_id").unsigned().notNullable();
       table.string("name");
@@ -82,12 +53,12 @@ exports.up = async function (knex, Promise) {
       table
         .foreign("settings_id")
         .references("id")
-        .inTable("merchant_settings");
-    });
-  }
+        .inTable("merchant_settings")
+        .onDelete("CASCADE")
+        .onUpdate("CASCADE");
+    }),
 
-  function createSettingsTable() {
-    return knex.schema.createTable("merchant_settings", function (table) {
+    knex.schema.createTable("merchant_settings", function (table) {
       table.uuid("id").primary().defaultTo(knex.raw("uuid_generate_v4()"));
       table.integer("confirm_duration");
       table.integer("stay_duration");
@@ -95,11 +66,9 @@ exports.up = async function (knex, Promise) {
       table.integer("bar_capacity");
       table.timestamp("created_at");
       table.timestamp("updated_at");
-    });
-  }
+    }),
 
-  function createAddressTable() {
-    return knex.schema.createTable("address", function (table) {
+    knex.schema.createTable("address", function (table) {
       table.uuid("id").primary().defaultTo(knex.raw("uuid_generate_v4()"));
       table.string("line_1");
       table.string("line_2");
@@ -109,11 +78,9 @@ exports.up = async function (knex, Promise) {
       table.float("latitude");
       table.float("longitude");
       table.timestamp("created_at");
-    });
-  }
+    }),
 
-  function createQueueTable() {
-    return knex.schema.createTable("venue_queue", function (table) {
+    knex.schema.createTable("venue_queue", function (table) {
       table.uuid("id").primary().defaultTo(knex.raw("uuid_generate_v4()"));
       table.uuid("customer_id").unsigned().notNullable();
       table.uuid("merchant_id").unsigned().notNullable();
@@ -121,23 +88,24 @@ exports.up = async function (knex, Promise) {
 
       table.foreign("customer_id").references("id").inTable("customers");
       table.foreign("merchant_id").references("id").inTable("merchants");
-    });
-  }
+    }),
 
-  function createTablesTable() {
-    return knex.schema.createTable("venue_tables", function (table) {
+    knex.schema.createTable("venue_tables", function (table) {
       table.uuid("id").primary().defaultTo(knex.raw("uuid_generate_v4()"));
       table.uuid("merchant_id").unsigned().notNullable();
       table.integer("num_sesats");
       table.boolean("available").notNullable().defaultTo(false);
       table.timestamp("created_at");
 
-      table.foreign("merchant_id").references("id").inTable("merchants");
-    });
-  }
+      table
+        .foreign("merchant_id")
+        .references("id")
+        .inTable("merchants")
+        .onDelete("CASCADE")
+        .onUpdate("CASCADE");
+    }),
 
-  function createSeatedTable() {
-    return knex.schema.createTable("seated", function (table) {
+    knex.schema.createTable("seated", function (table) {
       table.uuid("id").primary().defaultTo(knex.raw("uuid_generate_v4()"));
       table.uuid("customer_id").unsigned().notNullable();
       table.uuid("merchant_id").unsigned().notNullable();
@@ -148,59 +116,21 @@ exports.up = async function (knex, Promise) {
       table.foreign("customer_id").references("id").inTable("customers");
       table.foreign("merchant_id").references("id").inTable("merchants");
       table.foreign("table_id").references("id").inTable("venue_tables");
-    });
-  }
+    }),
+  ]);
 };
 
-exports.down = function (knex, Promise) {
-  return dropRoles()
-    .then(dropUsers)
-    .then(dropAuthLogs)
-    .then(dropCustomers)
-    .then(dropMerchant)
-    .then(dropAddress)
-    .then(dropSettings)
-    .then(dropQueue)
-    .then(dropTables)
-    .then(dropSeated);
-
-  function dropRoles() {
-    return knex.schema.dropTable("roles");
-  }
-
-  function dropUsers() {
-    return knex.schema.dropTable("users");
-  }
-
-  function dropAuthLogs() {
-    return knex.schema.dropTable("authLogs");
-  }
-
-  function dropCustomers() {
-    return knex.schema.dropTable("customers");
-  }
-
-  function dropMerchant() {
-    return knex.schema.dropTable("merchants");
-  }
-
-  function dropAddress() {
-    return knex.schema.dropTable("address");
-  }
-
-  function dropSettings() {
-    return knex.schema.dropTable("merchant_settings");
-  }
-
-  function dropQueue() {
-    return knex.schema.dropTable("venue_queue");
-  }
-
-  function dropTables() {
-    return knex.schema.dropTable("venue_tables");
-  }
-
-  function dropSeated() {
-    return knex.schema.dropTable("seated");
-  }
+exports.down = function (knex) {
+  return Promise.all([
+    knex.schema.dropTableIfExists("authauthRoles"),
+    knex.schema.dropTableIfExists("users"),
+    knex.schema.dropTableIfExists("authLogs"),
+    knex.schema.dropTableIfExists("customers"),
+    knex.schema.dropTableIfExists("merchants"),
+    knex.schema.dropTableIfExists("address"),
+    knex.schema.dropTableIfExists("merchant_settings"),
+    knex.schema.dropTableIfExists("venue_queue"),
+    knex.schema.dropTableIfExists("venue_tables"),
+    knex.schema.dropTableIfExists("seated"),
+  ]);
 };

@@ -5,9 +5,9 @@ exports.seed = async function (knex, Promise) {
     .then(insertUsersData);
 
   function insertRolesData() {
-    return knex('roles').del().then(function () {
+    return knex('auth_roles').del().then(function () {
       // Inserts seed entries
-      return knex("roles").insert([{
+      return knex("auth_roles").insert([{
           id: '6e9437f6-c766-4619-841e-841313449c1c',
           type: 'Super Admin'
         },
