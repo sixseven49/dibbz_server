@@ -19,7 +19,28 @@ function validUser(user) {
   }
 }
 
+function validRole(role) {
+  try {
+    if (role.hasOwnProperty('type')) throw "Missing Type"
+  } catch (err) {
+    return new Error(err)
+  }
+}
+
+function errorHandler(err, req, res, next) {
+  if (res.headersSent) {
+    return next(err)
+  }
+  res.status(500)
+  res.render('error', {
+    error: err
+  })
+}
+
+
 module.exports = {
   isValid,
-  validUser
+  validUser,
+  validRole,
+  errorHandler
 }

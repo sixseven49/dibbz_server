@@ -1,8 +1,8 @@
 const express = require('express');
 
 const router = express.Router();
-const queries = require('../db/dbQuerys');
-const middleware = require('../middlewares/users');
+const queries = require('../db/userQuerys');
+const middleware = require('../middlewares/auth');
 
 
 router.get('/', (req, res) => {
@@ -46,7 +46,8 @@ router.put('/:id', middleware.isValid, (req, res, next) => {
 router.delete('/:id', middleware.isValid, (req, res, next) => {
   queries.deleteUser(req.params.id).then(() => {
     res.json({
-      deleted: true
+      deleted: true,
+      deletedID: req.params.id
     });
   });
 });
