@@ -73,6 +73,7 @@ describe('CRUD Users', () => {
         done();
       })
       .catch(error => {
+        done();
         console.log(error);
       });
   });
@@ -93,6 +94,7 @@ describe('CRUD Users', () => {
         done();
       })
       .catch(error => {
+        done();
         console.log(error);
       });
   });

@@ -122,7 +122,7 @@ exports.up = function (knex) {
 
 exports.down = function (knex) {
   return Promise.all([
-    knex.schema.dropTableIfExists("authauthRoles"),
+    knex.schema.dropTableIfExists("authRoles"),
     knex.schema.dropTableIfExists("users"),
     knex.schema.dropTableIfExists("authLogs"),
     knex.schema.dropTableIfExists("customers"),

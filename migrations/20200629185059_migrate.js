@@ -1,8 +1,47 @@
+exports.up = function (knex) {
+  return Promise.all([
+    knex.schema.alterTable('users', function (t) {
+      t.timestamp('create_at').notNullable().defaultTo(knex.fn.now()).alter();
+    }),
+    knex.schema.alterTable('customers', function (t) {
 
-exports.up = function(knex) {
-  
+      t.timestamp('create_at').notNullable().defaultTo(knex.fn.now()).alter();
+    }),
+    knex.schema.alterTable('merchants', function (t) {
+
+      t.timestamp('create_at').notNullable().defaultTo(knex.fn.now()).alter();
+    }),
+    knex.schema.alterTable('merchant_settings', function (t) {
+
+      t.timestamp('create_at').notNullable().defaultTo(knex.fn.now()).alter();
+    }),
+    knex.schema.alterTable('address', function (t) {
+
+      t.timestamp('create_at').notNullable().defaultTo(knex.fn.now()).alter();
+    }),
+    knex.schema.alterTable('venue_queue', function (t) {
+      t.timestamp('joined_at').notNullable().defaultTo(knex.fn.now()).alter();
+    }),
+    knex.schema.alterTable('venue_tables', function (t) {
+
+      t.timestamp('create_at').notNullable().defaultTo(knex.fn.now()).alter();
+    }),
+    knex.schema.alterTable('seated', function (t) {
+      t.timestamp('started_at').notNullable().defaultTo(knex.fn.now()).alter();
+    })
+  ])
 };
 
-exports.down = function(knex) {
-  
+exports.down = function (knex) {
+  return Promise.all([
+    knex.schema.dropTableIfExists("users"),
+    knex.schema.dropTableIfExists("authLogs"),
+    knex.schema.dropTableIfExists("customers"),
+    knex.schema.dropTableIfExists("merchants"),
+    knex.schema.dropTableIfExists("address"),
+    knex.schema.dropTableIfExists("merchant_settings"),
+    knex.schema.dropTableIfExists("venue_queue"),
+    knex.schema.dropTableIfExists("venue_tables"),
+    knex.schema.dropTableIfExists("seated")
+  ])
 };

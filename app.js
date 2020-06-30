@@ -10,6 +10,7 @@ const users = require('./controllers/users');
 const roles = require('./controllers/authroles');
 const customers = require('./controllers/customers');
 const merchants = require('./controllers/merchant');
+const auth = require('./controllers/authentication');
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -20,6 +21,7 @@ app.use(express.urlencoded({
 app.use(cookieParser());
 
 //router file
+app.use('/api/v1/auth', auth);
 app.use('/api/v1/users', users);
 app.use('/api/v1/roles', roles);
 app.use('/api/v1/customers', customers);

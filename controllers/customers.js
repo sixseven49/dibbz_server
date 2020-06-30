@@ -2,6 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 const queries = require('../db/customerQuerys');
+const userQuerys = require('../db/userQuerys');
 const middleware = require('../middlewares/auth');
 
 
@@ -26,15 +27,18 @@ router.get('/:id', middleware.isValid, (req, res, next) => {
 })
 
 router.post('/', (req, res, next) => {
-  console.log(req.body);
-  if (middleware.validCustomer(req.body)) {
-    //insert into db
-    queries.createCustomer(req.body).then(customer => {
-      res.json(customer[0]);
-    });
-  } else {
-    next(new Error('Invalid Customer Object'))
-  }
+  // if user exisits in database then create
+  // console.log(req);
+  // next();
+  userQuerys.getById(req.body.user_id).then(user => {
+    if (user) {
+      queries.createCustomer(req.body).then(customer => {
+        res.json(customer[0]);
+      });
+    } else {
+      next(new Error('User does not exisit'));
+    }
+  });
 });
 
 router.put('/:id', middleware.isValid, (req, res, next) => {
