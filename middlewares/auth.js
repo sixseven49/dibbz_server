@@ -20,6 +20,15 @@ function validUser(user) {
   }
 }
 
+function validMerchant(merchant) {
+  try {
+    // checks if the user object matches the schema
+    if (v.validate(merchant, schemas.merchantSchema).valid) throw "incorrect json formart"
+  } catch (err) {
+    return new Error("Missing element");
+  }
+}
+
 function validRole(role) {
   try {
     if (role.hasOwnProperty('type')) throw "Missing Type"
@@ -43,5 +52,6 @@ module.exports = {
   isValid,
   validUser,
   validRole,
-  errorHandler
+  errorHandler,
+  validMerchant
 }

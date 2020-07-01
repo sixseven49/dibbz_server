@@ -10,13 +10,13 @@ module.exports = {
   getById(id) {
     return knex('merchants').where('id', id).first();
   },
-  createRole(merchant) {
+  createMerchant(merchant) {
     return knex('merchants').insert(merchant, '*');
   },
-  updateRole(id, merchant) {
+  updateMerchant(id, merchant) {
     return knex('merchants').where('id', id).update(merchant, '*');
   },
-  deleteRole(id, merchant) {
+  deleteMerchant(id, merchant) {
     return knex('merchants').where('id', id).del();
   }
 }

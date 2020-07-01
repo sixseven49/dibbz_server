@@ -22,31 +22,35 @@ router.get("/:id", middleware.isValid, (req, res, next) => {
   });
 });
 
-router.post("/", (req, res, next) => {
-  console.log(req.body);
+router.post("/signup", (req, res, next) => {
   if (middleware.validUser(req.body)) {
-    //insert into db
-    req.body.created_at = moment();
-    console.log(moment());
-    var hash = bcrypt.hashSync("myPassword", 10);
+    req.body.created_at = moment(); // now date
+    var hash = bcrypt.hashSync("myPassword", 10); //hash password
     req.body.password = hash;
-    queries.createUser(req.body).then((user) => {
-      res.json(user[0]);
+    //insert into db
+    queries.createUser(req.body).then(res => {
+      res.json(res)
+    }).catch(function (err) {
+      res.json({
+        message: err.message,
+        error: err.toString()
+      })
     });
   } else {
-    next(new Error("Invalid User"));
+    next(new Error("Invalid User Object"));
   }
 });
 
 router.put("/:id", middleware.isValid, (req, res, next) => {
   if (middleware.validUser(req.body)) {
-    queries.updateUser(req.params.id, req.body).then((users) => {
-      res.json(users[0]);
-    });
-  } else {
-    next(new Error("Unable to update user"));
+    try {
+      queries.updateUser(req.params.id, req.body)
+    } catch (error) {
+      next(new Error("Unable to update user"));
+    }
   }
 });
+
 
 router.delete("/:id", middleware.isValid, (req, res, next) => {
   queries.deleteUser(req.params.id).then(() => {

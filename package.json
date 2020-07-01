@@ -6,7 +6,7 @@
     "start": "node ./bin/www",
     "dev": "nodemon",
     "initKnex": "knex init",
-    "createmigrate": "knex migrate:make delete_cascade_plus",
+    "createmigrate": "knex migrate:make remove_notnull_merchant",
     "migrate": "knex migrate:latest",
     "createseed": "knex seed:make init_seed",
     "runSeed": "knex seed:run",
